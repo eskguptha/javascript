@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Problem Finder Demo</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style type="text/css">
+        @import url(https://fonts.googleapis.com/css?family=Roboto:400,100,500,700,900,300);
+        body {
+            background: #ccc;
+            color: #3a3a3a;
+            font-size: 11pt;
+            font-family: 'Muli', sans-serif;
+        }
+
+        .header {
+            min-height: 80px;
+            padding-top: 15px;
+            border-bottom: 4px #2c3454 solid;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            padding-top: 15px;
+            color: #21a340;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .container {
+            background: #fff;
+        }
+
+        .product-list {
+            border: 1px #ccc solid;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .product-list .title a {
+            font-size: 13pt;
+            font-weight: bold;
+        }
+
+        .product-list .stars .fa-star {
+            color: #FFA500;
+        }
+
+        .product-list .stars .fa-star-half-o {
+            color: #FFA500;
+        }
+
+        .product-list .fa {
+            color: #333;
+        }
+
+        .product-list .badge {
+            background-color: #ccc;
+            color: #000;
+            font-size: 9pt;
+        }
+
+        .product-list .fa-thumbs-o-up {
+            color: #1558a0;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row header">
+            <div class="col-md-3">
+                <img src="https://hackerearth.global.ssl.fastly.net/static/hackerearth/images/logo/HE_logo.png" class="img-responsive">
+            </div>
+            <div class="col-md-3">
+                <p>--Programming Problems Hub!</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <input name="tags" id="id_tags" placeholder="Search (by tags)" size="37" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <span class=""><input type="radio" value="rating" checked name="sort_by" /> Rating</span>
+                <span class=""><input type="radio"  value="likes" name="sort_by" /> Likes</span>
+            </div>
+            <div class="col-md-4">
+                <span> <button class="btn btn-success">Total Likes <span class="badge" id="id_likes"></span></button>
+                </span>
+                <span>       <button class="btn btn-success">API Hits <span class="badge" id="id_api_hits"></span></button>
+                </span>
+            </div>
+        </div>
+        <div class="row" id="problem-list">
+        </div>
+    </div>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+    </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+    var product_list = [{
+        "name": "Monk and his Friend",
+        "tags": ["php", "java"],
+        "rating": 5,
+        "solved_by": 10,
+        "parent_challenge": "Code Monk",
+        "url": "http://google.com",
+        "image": "http://www.unmotivating.com/wp-content/uploads/2015/03/cute-animals-smiling-023-300x225.jpg",
+        "likes": 50
+
+    }, {
+        "name": "The best Internet Browser",
+        "tags": ["php", "java", "css"],
+        "rating": 3.5,
+        "solved_by": 200,
+        "parent_challenge": "Code Monk test(Arrays, Strings)",
+        "url": "http://google.com",
+        "image": "http://www.unmotivating.com/wp-content/uploads/2015/03/cute-animals-smiling-023-300x225.jpg",
+        "likes": 15
+
+    }, {
+        "name": "Crazy Kangroo",
+        "tags": ["php", "java", "css"],
+        "rating": 4,
+        "solved_by": 200,
+        "parent_challenge": "Dhruava Hiring challenge",
+        "url": "http://google.com",
+        "image": "http://www.unmotivating.com/wp-content/uploads/2015/03/cute-animals-smiling-023-300x225.jpg",
+        "likes": 150
+
+    }, {
+        "name": "Monk and his enemy",
+        "tags": ["php", "java", "python"],
+        "rating": 2.5,
+        "solved_by": 200,
+        "parent_challenge": "Code Monk",
+        "url": "http://google.com",
+        "image": "http://www.unmotivating.com/wp-content/uploads/2015/03/cute-animals-smiling-023-300x225.jpg",
+        "likes": 12
+
+    }, {
+        "name": "The best Internet Application",
+        "tags": ["php", "sql", "css"],
+        "rating": 4.5,
+        "solved_by": 80,
+        "parent_challenge": "Code Monk test(Arrays, Strings)",
+        "url": "http://google.com",
+        "image": "http://www.unmotivating.com/wp-content/uploads/2015/03/cute-animals-smiling-023-300x225.jpg",
+        "likes": 100
+
+    }, {
+        "name": "Crazy Elephant",
+        "tags": ["linux", "java", "css"],
+        "rating": 5,
+        "solved_by": 1250,
+        "parent_challenge": "Dhruava Hiring challenge",
+        "url": "http://google.com",
+        "image": "http://www.unmotivating.com/wp-content/uploads/2015/03/cute-animals-smiling-023-300x225.jpg",
+        "likes": 225
+
+    }
+
+];
+    
+    </script>
+<script type="text/javascript">
+function init_buildUIPage(element_id, line_data) {
+    var tags_searched = "";
+    var sort_by_selected = "";
+    var total_likes = 0;
+    var total_api_hits = 0;
+
+    function getProducts(product_list, tags_searched) {
+        product_data = '';
+        total_likes = 0;
+        for (var i = 0; i < product_list.length; i++) {
+            if (tags_searched && product_list[i].tags.indexOf(tags_searched.toLowerCase()) == -1) {
+                continue;
+            }
+
+            total_likes = total_likes + product_list[i].likes;
+
+            star_span = "";
+            for (var j = 1; j <= 5; j++) {
+                if (j <= product_list[i].rating)
+                    star_span = star_span + "<i class='fa fa-star'></i>";
+                else
+                    star_span = star_span + "<i class='fa fa-star-o'></i>";
+            };
+
+            var product_template = "<div class='col-md-6 '> \
+            <div class='product-list'> \
+                <div class='row'>\
+                    <div class='col-md-4'>\
+                        <a href='" + product_list[i].url + "' title='" + product_list[i].name + "'><img src='" + product_list[i].image + "' alt='" + product_list[i].name + "' title='" + product_list[i].name + "' class='img-thumbnail'></a>\
+                    </div>\
+                    <div class='col-md-8'>\
+                        <div class='title'><a href=''>" + product_list[i].name + "</a></div>\
+                        <div class='solved_info'>\
+                            <span class='sloved_text'>Solved By:</span> " + product_list[i].solved_by + " | \
+                            <span class='rating'>" + product_list[i].rating + " </span> <span class='stars'>" + star_span + "</span>\
+                        </div>\
+                        <div class='parent-challenge'>\
+                            <i class='fa fa-home'></i> " + product_list[i].parent_challenge + "\
+                        </div>\
+                        <div class='tags'>\
+                            <i class='fa fa-tags'></i> " + product_list[i].tags + "\
+                        </div>\
+                        <div class='link'>\
+                            <i class='fa fa-link'></i> <span>Link:</span>\
+                            <span><a href='" + product_list[i].url + "' target='new'>" + product_list[i].url + "</a></span>\
+                            <span class='badge'><i class='fa fa-thumbs-o-up'></i> " + product_list[i].likes + "</span>\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>\
+            </div>";
+            product_data = product_data + product_template;
+        }
+        return [product_data, total_likes];
+    };
+
+
+    function buildData(product_data,element_id) {
+
+        $('#'+element_id).empty();
+        if (product_data)
+            $('#'+element_id).append(product_data);
+        else
+            $('#'+element_id).html("<h3 class='text-center text-danger'><br/><br/><br/>No problems found.</h3><br/><br/>");
+    }
+
+    result_data = getProducts(product_list, tags_searched);
+    buildData(result_data[0],element_id);
+    $("#id_likes").text(result_data[1])
+
+    $("#id_tags").keyup(function() {
+        var sort_by_selected = $("input[name=sort_by]:checked").val();
+        var tags_searched = $("input[name=tags]").val();
+        result_data = getProducts(product_list, tags_searched);
+        buildData(result_data[0],element_id);
+        $("#id_likes").text(result_data[1])
+    });
+
+
+    function sortByKey(array, key) {
+        return array.sort(function(a, b) {
+            var x = a[key];
+            var y = b[key];
+            return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+        });
+    }
+
+
+    $('input[name=sort_by]').click(function() {
+        var sort_by_selected = $("input[name=sort_by]:checked").val();
+        var tags_searched = $("input[name=tags]").val();
+        product_list = sortByKey(product_list, sort_by_selected)
+        result_data = getProducts(product_list, tags_searched);
+        buildData(result_data[0],element_id);
+        $("#id_likes").text(result_data[1])
+    });
+
+    function GetCookie(name) {
+        var arg = name + "=";
+        var alen = arg.length;
+        var clen = document.cookie.length;
+        var i = 0;
+        while (i < clen) {
+            var j = i + alen;
+            if (document.cookie.substring(i, j) == arg)
+                return getCookieVal(j);
+            i = document.cookie.indexOf(" ", i) + 1;
+            if (i == 0) break;
+        }
+        return null;
+    }
+
+    function SetCookie(name, value) {
+        document.cookie = name + "=" + escape(value);
+    }
+
+    function DeleteCookie(name) {
+        var cval = GetCookie(name);
+        document.cookie = name + "=" + cval;
+    }
+
+    function getAPIHits() {
+        var count = GetCookie('count')
+        if (count == null) {
+            SetCookie('count', '1')
+            return 1
+        } else {
+            var newcount = parseInt(count) + 1;
+            DeleteCookie('count')
+            SetCookie('count', newcount)
+            return count
+        }
+    }
+
+    function getCookieVal(offset) {
+        var endstr = document.cookie.indexOf(";", offset);
+        if (endstr == -1)
+            endstr = document.cookie.length;
+        return unescape(document.cookie.substring(offset, endstr));
+    }
+    $("#id_api_hits").text(getAPIHits());
+}
+
+init_buildUIPage("problem-list", product_list);
+</script>
+
+    
+</body>
+
+</html>
