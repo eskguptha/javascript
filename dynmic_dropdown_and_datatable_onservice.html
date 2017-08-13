@@ -1,0 +1,168 @@
+"""
+Create dynamic dropdown from service
+On chage load load data from service
+Reset dropdowns 
+Datatable Reinitialize
+
+"""
+
+
+
+{% extends "base.html" %}
+{% block pagetitle %}
+{{page_title}}
+{% endblock %}
+{% block body %}
+<div class="row">
+<div class="col-md-6">
+	<p class="page_title"><i class="fa fa-globe"></i> {{page_title}}</p>
+</div>
+<div class="col-md-6">
+	<p class="pull-right">
+	<span><a class="btn btn-warning" href="{% url 'location_add' %}"><i class="fa fa-plus"></i> New Location </a>
+	</span>
+	<span><a class="btn btn-default" href="{% url 'home' %}"><i class="fa fa-close"></i> Close</a>
+	</span>
+	</p>
+	</div>
+</div>
+
+<div class="row">
+	<div class="">
+		<form id="loc-form">
+			<div id="location-builder">
+				
+			</div>
+		</form>
+	</div>
+	
+</div>
+
+<div class="row">
+<div class="col-md-12">
+	<div class="table-responsive">
+		<table id="location_datatable" class="table table-striped table-bordered" >
+			<thead>
+				<tr>
+					<th>
+						Name
+					</th>
+					<th>
+						EC Code
+					</th>
+					<th>
+						HierarchyLevel
+					</th>
+					
+					<th>
+						Created at
+					</th>
+					<th>
+						Updated at
+					</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody class="location_data">
+				
+			</tbody>
+		</table>
+	</div>
+</div>	
+</div>
+{%endblock%}
+
+{% block extracss %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/dataTables.bootstrap.min.css">
+{%endblock%}
+
+{% block extrajs %}
+<script type="text/javascript" src="{{STATIC_URL}}js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+    $('#data_table').DataTable();
+} );
+</script>
+<script type="text/javascript">
+	// 
+	var location_hierarchy_levels = {{ location_hierarchy_levels|safe|default:"[]" }};
+	var location_list = {{ location_list|safe|default:"[]" }};
+	
+	// Build Locations
+	function load_hl_dropdown(location_hierarchy_levels, location_list){
+		$.each( location_hierarchy_levels, function( index, hl_obj ){
+		var hl_dropdown = '<select required name="'+hl_obj.name+'" class="'+hl_obj.name+' form-control location-info"><option value="">Select '+hl_obj.name+"</option></select>";
+		var select_box_div = '<div class="col-md-3 loc-block"><div class="form-group">'+hl_dropdown+'</div></div>';
+		$("#location-builder").append(select_box_div);
+		if(index >0){
+			$("."+hl_obj.name+"").attr({"style":"display:None;"});
+			$.each( location_list, function( index, loc_obj ){
+				$("."+hl_obj.name+"").append('<option value="'+loc_obj.id+'">'+loc_obj.name+'</option>')
+			});
+
+		}
+		else{
+			$.each( location_list, function( index, loc_obj ){
+				$("."+hl_obj.name+"").append('<option value="'+loc_obj.id+'">'+loc_obj.name+'</option>')
+			});
+		}
+	});
+	}
+
+// Load Default location and Hl
+load_hl_dropdown(location_hierarchy_levels, location_list);
+
+// Get Locations on Change
+$('.location-info').change(
+    function() {
+        var current = $(this);
+        var next_selector = current.closest('.loc-block').next('.loc-block').find( "select.location-info" );
+        var next_selector_all = current.closest('.loc-block').nextAll('.loc-block').find( "select.location-info" );
+        next_selector_all.attr('style','display:None');
+        next_selector.empty();
+        next_selector.attr("style", '');
+        var form_data = $('#loc-form').serialize();
+        url = "{% url 'web_locations_list' %}";
+        $.get(url,
+                'hl_name='+next_selector.attr('name')+'&'+'value='+current.val(),
+               function(data, status){
+		var locations = data['location_data'][next_selector.attr('name')];
+		next_selector.append('<option value="">---  Select '+capitalize(next_selector.attr('name'))+' ---</option>').val('');
+		ordered = {}
+		Object.keys(locations).sort().forEach(function(key) {
+          	ordered[key] = locations[key];
+        			});
+            $.each(ordered, function (val, key) {
+                next_selector.append('<option value='+key+'>'+capitalize(val)+'</option>');
+            });
+        	$('.location_table_data').empty();
+            $('#location_datatable').DataTable().clear().destroy();
+            var table = $('#location_datatable').DataTable( );
+            table_tr = '';
+            $.each(data.table_data, function (i) {
+                loc_obj = data.table_data[i];
+                view_url  ="{% url 'location_view' id=12345 %}".replace(/12345/, loc_obj.id);
+                edit_url  ="{% url 'location_edit' id=12345 %}".replace(/12345/, loc_obj.id);
+                delete_url  ="{% url 'location_delete' id=12345 %}".replace(/12345/, loc_obj.id);
+                table_tr = "<tr>\
+                            <td>"+loc_obj.name+"</td>\
+                            <td>"+loc_obj.ec_code+"</td>\
+                            <td>"+loc_obj.hierarchy_level+"</td>\
+                            <td>"+loc_obj.created_at+"</td>\
+                            <td>"+loc_obj.updated_at+"</td>\
+                            <td>\
+                            	<div class='btn-group'>\
+                            	<a class='btn btn-default btn-sm' href='"+edit_url+"'><i class='fa fa-edit'></i></a>\
+                            	<a  class='btn btn-default btn-sm' href='"+view_url+"'><i class='fa fa-eye'></i></a>\
+                            	<a class='btn btn-default btn-sm' href='"+delete_url+"'><i class='fa fa-trash'></i></a>\
+                            	</div>\
+                            	\
+                            </td></tr>\
+                            ";
+                 table.row.add($(table_tr)).draw(false);
+                });
+    });
+        });
+</script>
+{%endblock%}
