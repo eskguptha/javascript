@@ -1,0 +1,208 @@
+<!-- Location Transform from service using bootstrap-duallistbox -->
+
+
+{% extends "base.html" %}
+{% block pagetitle %}
+{{page_title}}
+{% endblock %}
+{% block body %}
+<div class="row">
+<div class="col-md-6">
+	<p class="page_title"><i class="fa fa-globe"></i> {{page_title}}</p>
+</div>
+<div class="col-md-6">
+	<p class="pull-right">
+	<span><a class="btn btn-default" href="{% url 'home' %}"><i class="fa fa-close"></i> Close</a>
+	</span>
+	</p>
+	</div>
+</div>
+<div class="row">
+	<div class="bg-success"><p class="col-md-12" id="msg_flag"></p></div>
+</div>
+<div class="row">
+		<div class="col-md-2">
+        <p ><br><label  class="label label-primary"> <i class="fa fa-arrow-right"></i> From</label></p>
+        </div>
+        </div>
+<form id="tg_form" action="" method="post">
+{% csrf_token %}
+	<input type="hidden" name="tg_location_id" id="id_tg_location_id">
+	<div class="row">
+		<div class="col-md-12">
+		<div class="row">
+			<div id="source-location-builder">
+			</div>
+			</div>
+		</div>
+	    <div class="col-md-12">
+	    	<div id="etl_loc"></div>
+		</div>
+		<div class="">
+		<div class="col-md-2">
+	    <p ><br><label  class="label label-primary"> <i class="fa fa-arrow-right"></i> Move to</label></p>
+	    </div>
+	    </div>
+	    <div class="row">
+	    <div class="col-md-12">
+	    	<div id="destination-location-builder">
+			</div>
+		</div>
+		</div>
+		<div >
+			<div class="col-md-2">
+			<button  class="btn btn-success" id="tg_loc_submit_btn" type="button"> <i class="fa fa-save"></i> Submit</button>
+		    </div>
+		</div>
+		</div>
+</form>
+
+{%endblock%}
+
+{% block extracss %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-duallistbox.min.css">
+{%endblock%}
+
+{% block extrajs %}
+ <script src="{{STATIC_URL}}js/jquery.bootstrap-duallistbox.min.js"></script>
+
+<script type="text/javascript">
+	// 
+	var location_hierarchy_levels = {{ location_hierarchy_levels|safe|default:"[]" }};
+	var location_list = {{ location_list|safe|default:"[]" }};
+	
+	// Build Locations
+	function source_load_hl_dropdown(location_hierarchy_levels, location_list){
+		$.each( location_hierarchy_levels, function( index, hl_obj ){
+		var hl_dropdown = '<select  name="source_'+hl_obj.name+'" class="source_'+hl_obj.name+' form-control source-location-info"><option value="">Select '+hl_obj.name+"</option></select>";
+		var select_box_div = '<div class="col-md-3 loc-block"><div class="form-group">'+hl_dropdown+'</div></div>';
+		$("#source-location-builder").append(select_box_div);
+		if(index >0){
+			$(".source_"+hl_obj.name+"").attr({"style":"display:None;"});
+			$.each( location_list, function( index, loc_obj ){
+				$(".source_"+hl_obj.name+"").append('<option value="'+loc_obj.id+'">'+loc_obj.name+'</option>')
+			});
+
+		}
+		else{
+			$.each( location_list, function( index, loc_obj ){
+				$(".source_"+hl_obj.name+"").append('<option value="'+loc_obj.id+'">'+loc_obj.name+'</option>')
+			});
+		}
+	});
+	}
+
+// Load Default location and Hl
+source_load_hl_dropdown(location_hierarchy_levels, location_list);
+
+// Get Locations on Change
+$('.source-location-info').change(
+    function() {
+        var current = $(this);
+        var next_selector = current.closest('.loc-block').next('.loc-block').find( "select.source-location-info" );
+        var next_selector_all = current.closest('.loc-block').nextAll('.loc-block').find( "select.source-location-info" );
+        next_selector_all.attr('style','display:None');
+        next_selector.empty();
+        next_selector.attr("style", '');
+        url = "{% url 'web_locations_list' %}";
+        $.get(url,
+                'hl_name='+next_selector.attr('name')+'&'+'value='+current.val(),
+               function(data, status){
+		var locations = data['location_data'][next_selector.attr('name')];
+		next_selector.append('<option value="">---  Select '+capitalize(next_selector.attr('name').split('_')[1])+' ---</option>').val('');
+		ordered = {}
+		Object.keys(locations).sort().forEach(function(key) {
+          	ordered[key] = locations[key];
+        			});
+            $("#etl_loc").empty();
+            var etl_options = '';
+            $.each(ordered, function (val, key) {
+                next_selector.append('<option value='+key+'>'+capitalize(val)+'</option>');
+                etl_options = etl_options+ '<option value='+key+'>'+capitalize(val)+'</option>';
+            });
+            var etl_dropdown = '<select multiple="multiple" size="10" name="tg_selected_location_list">'+etl_options+'\
+            </select>';
+            $("#etl_loc").append(etl_dropdown);
+            $('#etl_loc').children('select[name="tg_selected_location_list"]').bootstrapDualListbox({
+		        showFilterInputs: false,
+		        infoText: false
+		    	});
+    	});
+        });
+</script>
+
+<script type="text/javascript">
+	function destination_load_hl_dropdown(location_hierarchy_levels, location_list){
+		$.each( location_hierarchy_levels, function( index, hl_obj ){
+		var hl_dropdown = '<select  name="dest_'+hl_obj.name+'" class="dest_'+hl_obj.name+' form-control destination-location-info"><option value="">Select '+hl_obj.name+"</option></select>";
+		var select_box_div = '<div class="col-md-3 loc-block"><div class="form-group">'+hl_dropdown+'</div></div>';
+		$("#destination-location-builder").append(select_box_div);
+		if(index >0){
+			$(".dest_"+hl_obj.name+"").attr({"style":"display:None;"});
+			$.each( location_list, function( index, loc_obj ){
+				$(".dest_"+hl_obj.name+"").append('<option value="'+loc_obj.id+'">'+loc_obj.name+'</option>')
+			});
+
+		}
+		else{
+			$.each( location_list, function( index, loc_obj ){
+				$(".dest_"+hl_obj.name+"").append('<option value="'+loc_obj.id+'">'+loc_obj.name+'</option>')
+			});
+		}
+	});
+	}
+
+// Load Default location and Hl
+destination_load_hl_dropdown(location_hierarchy_levels, location_list);
+$('.destination-location-info').change(
+    function() {
+        var current = $(this);
+        var next_selector = current.closest('.loc-block').next('.loc-block').find( "select.destination-location-info" );
+        var next_selector_all = current.closest('.loc-block').nextAll('.loc-block').find( "select.destination-location-info" );
+        next_selector_all.attr('style','display:None');
+        next_selector.empty();
+        next_selector.attr("style", '');
+        url = "{% url 'web_locations_list' %}";
+        $.get(url,
+                'hl_name='+next_selector.attr('name')+'&'+'value='+current.val(),
+               function(data, status){
+		var locations = data['location_data'][next_selector.attr('name')];
+		next_selector.append('<option value="">---  Select '+capitalize(next_selector.attr('name').split('_')[1])+' ---</option>').val('');
+		ordered = {}
+		Object.keys(locations).sort().forEach(function(key) {
+          	ordered[key] = locations[key];
+        			});
+            var etl_options = '';
+            $.each(ordered, function (val, key) {
+                next_selector.append('<option value='+key+'>'+capitalize(val)+'</option>');
+                etl_options = etl_options+ '<option value='+key+'>'+capitalize(val)+'</option>';
+            });
+            
+    	});
+    	//console.log(current.val());
+    	$("#id_tg_location_id").val(current.val());
+    	//alert(current.val());
+        });
+
+</script>
+
+<script type="text/javascript">
+	$("#tg_loc_submit_btn").click(function() {
+		url = "{% url 'web_locationtransform' %}";
+		var form_data = $('#tg_form').serialize();
+		//console.log(form_data);
+        $.post(url,
+        	form_data,
+        	function(data, status){
+        		console.log(status);
+        		$("#msg_flag").empty();
+        		$("#msg_flag").append(data.msg);
+        		$("#tg_loc_submit_btn")[0].reset();
+
+        	});	
+
+	});
+</script>
+
+
+{%endblock%}
