@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Bootstrap 101 Template</title>
+    <!-- Bootstrap -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">
+        #tab-list .close{
+        margin-left: 7px;
+    }
+    .basic_html_form{margin-top: 15px;}
+    </style>
+  </head>
+  <body>
+
+
+  <div class="container">
+  <div class="row">
+      <div class="col-md-12">
+          <h2>Sample Criteria Form</h2>
+           <p>
+                <button id="btn-add-tab" type="button" class="btn btn-primary pull-right"><i class="glyphicon glyphicon-plus"></i> Add Criteria</button>
+            </p>
+      </div>
+  </div>
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Nav tabs -->
+            <ul id="tab-list" class="nav nav-tabs" role="tablist">
+                <li class="active"><a href="#tab1" role="tab" data-toggle="tab">Criteria 1</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div id="tab-content" class="tab-content">
+                <div class="tab-pane fade in active" id="tab1">
+                </div>
+            </div>
+            <p class="text-center"><button class="btn btn-success btn-lg"><i class="glyphicon glyphicon-refresh"></i> Analize</button></p>
+        </div>
+    </div>
+</div>
+
+
+  <script src="dist/js/jquery.min.js"></script>
+  <script src="dist/js/bootstrap.min.js"></script>
+
+
+  <script type="text/javascript">
+    var basic_html_form = '<div class="row basic_html_form"><div class="col-md-12"><div class="form-group">\
+    <div class="row">\
+                  <label for="screen_id" class="col-sm-3 control-label">Screen ID</label>\
+                  <div class="col-sm-5">\
+                  <input type="text" id="screen_id" name="screen_id" class="form-control">\
+                </div>\
+                </div>\
+                </div>\
+                <div class="form-group">\
+                <div class="row">\
+                  <label for="normalization_method" class="col-sm-3 control-label">Select Data Normalization Method</label>\
+                  <div class="col-sm-5">\
+                    <select class="form-control" id="normalization_method" name="normalization_method">\
+                        <option value="" disabled="disabled" selected="selected">-- Please choose data normalization method --</option>\
+                        <option value="1">Subtract Assay Background Median</option>\
+                        <option value="2">Subtract Plate Background Median</option>\
+                        <option value="3">Scale to Positive and Negative Control</option>\
+                        <!--\
+                        <option value="3">Full Normalization (x-neg_med)/(pos_med-neg_med)</option>\
+                        -->\
+                    </select>\
+                  </div>\
+                </div>\
+                </div>\
+                <div class="form-group" id="pick_method">\
+                <div class="row">\
+                  <label for="hitpick_method" class="col-sm-3 control-label">Select Hit Picking Method</label>\
+                  <div class="col-sm-5">\
+                    <select class="form-control" id="hitpick_method" name="hitpick_method">\
+                        <option value="" disabled="disabled" selected="selected">-- Please choose hit picking method --</option>\
+                        <option value="LR">Linear Regression</option>\
+                        <option value="TR">Threshold</option>\
+                        <option value="PR">P-value + Ratio Ranking</option>\
+                    </select>\
+                  </div>\
+                </div>\
+                </div>\
+                <div class="segment_form"></div>\
+                </div>\
+                </div>\
+                ';
+
+
+    var linear_form = '<div class="form-group" ><div class="row">\
+                  <label for="alpha" class="col-sm-3 control-label">Select Alpha Level</label>\
+                  <div class="col-sm-5">\
+                  <input type="text" id="alpha" name="alpha" class="form-control">\
+                </div>\
+                </div>\
+                </div>\
+                <div class="form-group"><div class="row">\
+                  <label for="assay_x-1" class="col-sm-3 control-label">X-Axis:</label>\
+                  <div class="col-sm-5">\
+                  <select class="form-control" id="assay_x-1" name="assay_x-1">\
+                      <option value="" disabled="disabled" selected="selected">-- Please choose x-axis value --</option>\
+                      <option>Option 1</option>\
+                      <option>Option 2</option>\
+                  </select>\
+                </div>\
+                </div>\
+                </div>\
+                <div class="form-group"><div class="row">\
+                  <label for="assay_y-1" class="col-sm-3 control-label">Y-Axis:</label>\
+                  <div class="col-sm-5">\
+                  <select class="form-control" id="assay_y-1">\
+                      <option value="" disabled="disabled" selected="selected">-- Please choose y-axis value --</option>\
+                      <option>Option 1</option>\
+                      <option>Option 2</option>\
+                  </select>\
+                </div>\
+                </div>\
+                </div>\
+                <div class="form-group"><div class="row">\
+                    <label for="pick_level" class="col-sm-3 control-label">Choose what to pick</label>\
+                <div class="col-sm-5" id="pick_level">\
+                  <input type="radio"  />Upper\
+                  &nbsp\
+                  <input type="radio"  />Lower\
+                  &nbsp\
+                  <input type="radio"  />Both\
+                </div>\
+              </div>\
+              </div>\
+              </div>\
+';
+
+
+var threshold_form = '<div class="threshold_form"><div class="form-group"><div class="row">\
+                 <label for="variable_value" class="col-sm-3 control-label">Variable <small>(Reads from plate)</small></label>\
+                  <div class="col-sm-5">\
+                    <select class="form-control" id="variable_value">\
+                        <option value="" disabled="disabled" selected="selected">-- Please choose variable --</option>\
+                        <option>var 1</option>\
+                        <option>var 2</option>\
+                        <option>var 3</option>\
+                    </select>\
+                  </div>\
+                </div>\
+                </div>\
+                <div class="form-group"><div class="row">\
+                  <label for="comp_operator" class="col-sm-3 control-label">Comparision Operator</label>\
+                   <div class="col-sm-5">\
+                     <select class="form-control" id="comp_operator">\
+                        <option value="" disabled="disabled" selected="selected">-- Please choose comparision operator --</option>\
+                         <option><</option>\
+                         <option><=</option>\
+                         <option>></option>\
+                         <option>>=</option>\
+                         <option>!=</option>\
+                     </select>\
+                   </div>\
+                 </div>\
+                 </div>\
+                 <div class="form-group"><div class="row">\
+                   <label for="value" class="col-sm-3 control-label">Value</label>\
+                   <div class="col-sm-5">\
+                   <input type="text" id="value" name="value" type="text" class="form-control">\
+                 </div>\
+                 </div>\
+                 <div class="form-group"><div class="row">\
+                     <label for="default" class="col-sm-3 control-label">Default Values</label>\
+                 <div class="col-sm-5" id="default">\
+                   <input type="radio"  />Custom\
+                   &nbsp\
+                   <input type="radio"  />1δ\
+                   &nbsp\
+                   <input type="radio"  />2δ\
+                   &nbsp\
+                   <input type="radio"  />3δ\
+                 </div>\
+                 </div>\
+                 </div>\
+               </div>';
+    $(document).ready(function () {
+    var tabID = 1;
+    $("#tab1").append(basic_html_form);
+    $('#btn-add-tab').click(function () {
+        tabID++;
+        $('#tab-list').append($('<li><a href="#tab' + tabID + '" role="tab" data-toggle="tab">Criteria ' + tabID + '<button class="close" type="button" title="Remove this page">×</button></a></li>'));
+        
+        $('#tab-content').append($('<div class="tab-pane fade" id="tab' + tabID + '">'+ basic_html_form +'</div>'));
+    
+
+
+    });
+    $('#tab-list').on('click','.close',function(){
+        var tabID = $(this).parents('a').attr('href');
+        $(this).parents('li').remove();
+        $(tabID).remove();
+
+        //display first tab
+        var tabFirst = $('#tab-list a:first');
+        tabFirst.tab('show');
+    });
+        
+        var list = document.getElementById("tab-list");
+    });
+
+
+    $('#tab-content').on('change', 'select#hitpick_method', function(e){
+        var selected_value = $(this).val();
+        $(this).parents('.basic_html_form').find('.segment_form').empty();
+        if (selected_value == 'LR'){
+            $(this).parents('.basic_html_form').find('.segment_form').append(linear_form);    
+        }
+        if (selected_value == 'TR'){
+            $(this).parents('.basic_html_form').find('.segment_form').append(threshold_form);    
+        }
+        if (selected_value == 'PR'){
+            //
+        }
+        
+        
+    });
+  </script>
+
+  </body>
+  </html>
