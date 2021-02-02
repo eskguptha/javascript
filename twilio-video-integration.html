@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vidmed Twilio Video using JavaScript</title>
+  <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+          <div class="form-inline">
+            <div class="form-group">
+              <label for="TWILIO_ROOM_NAME "> ROOM NAME</label>
+              <input type="text" class="form-control" id="TWILIO_ROOM_NAME" size="20" placeholder="TWILIO_ROOM_NAME" required="" value="">
+            </div>
+            <div class="form-group">
+              <label for="TWILIO_TOKEN_IDENTITY form-control"> TOKEN IDENTITY</label>
+              <input type="text"  class="form-control" id="TWILIO_TOKEN_IDENTITY" size="20" placeholder="TWILIO_TOKEN_IDENTITY" required="" value="">
+            </div>
+            <button class="btn btn-success" id="btn_twilio_video_start" onclick="twilio_video_start()">Connect</button>
+            <button class="btn btn-danger" onclick="twilio_room_disconnect()" type="submit">Disconnect</button>
+          </div>
+      </div>
+      
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        
+        <div id="video-list"></div>
+        <div id="myVideoContainer"></div>
+      </div>
+    </div>
+  </div>
+<script type="text/javascript">
+  var TWILIO_TOKEN_API_URL="";
+  var TWILIO_ROOM_NAME;
+  var TWILIO_TOKEN_IDENTITY;
+  var TWILIO_TOKEN;
+</script>
+<script type="text/javascript" src="/static/video/require.min.js"></script>
+<script type="text/javascript">
+  requirejs.config({
+      appDir: ".",
+      baseUrl: "",
+      paths: { 
+          'twilio': ['twilio-video-v2.min']
+      },
+      shim: {
+      }
+});
+requirejs(['twilio'], function(Twilio) {
+function twilio_room_connect(){
+      Twilio.createLocalTracks({
+      audio: true,
+      video: { width: 640 , controls:true,autoplay:true }
+        }).then(localTracks => {
+          return Twilio.connect(TWILIO_TOKEN, {
+            name: TWILIO_ROOM_NAME,
+            tracks: localTracks
+          });
+        }).then(room => {
+          console.log(`Connected to Room: {room.name}`);
+          // Log your Client's LocalParticipant in the Room
+          const localParticipant = room.localParticipant;
+          room.on('participantConnected', participant => {
+           document.getElementById('video-list').innerHTML = '';
+            console.log(`Participant "${participant.identity}" connected`);
+
+            participant.tracks.forEach(publication => {
+              if (publication.isSubscribed) {
+                const track = publication.track;
+                document.getElementById('video-list').appendChild(track.attach());
+              }
+            });
+
+            participant.on('trackSubscribed', track => {
+              document.getElementById('video-list').appendChild(track.attach());
+            });
+          });
+
+          room.participants.forEach(participant => {
+          document.getElementById('video-list').innerHTML = '';
+          participant.tracks.forEach(publication => {
+            if (publication.track) {
+              document.getElementById('video-list').appendChild(track.attach());
+            }
+          });
+
+         participant.on('trackSubscribed', track => {
+            document.getElementById('video-list').appendChild(track.attach());
+          });
+        });
+
+
+          //Log Local Video
+          Twilio.createLocalVideoTrack().then(track => {
+            document.getElementById('myVideoContainer').innerHTML = '';
+            document.getElementById('myVideoContainer').appendChild(track.attach());
+            //localVideo =  track.attach();
+            //localVideo.id = "local_video";
+            //localVideo.class = 'local-video-stream';
+            //localVideo.autoplay = true;
+            //localVideo.controls = true;
+           // localVideo.width = '640';
+            //localVideo.muted = 'muted';
+            //document.getElementById('myVideoContainer').appendChild(localVideo);
+          });
+
+          room.on('disconnected', room => {
+          // Detach the local media elements
+          room.localParticipant.tracks.forEach(publication => {
+              const attachedElements = publication.track.detach();
+              attachedElements.forEach(element => element.remove());
+        });
+      });
+
+    twilio_room_disconnect = function () {
+             room.disconnect();
+             local_video_tag = document.getElementById('myVideoContainer');
+             local_video_tag.innerHTML = '';
+             remote_video_tag = document.getElementById('video-list');
+             remote_video_tag.innerHTML = '';
+          }
+        });
+    }
+
+    twilio_get_acess_token = function(){
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", TWILIO_TOKEN_API_URL, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onreadystatechange = function () {
+          console.log("TWILIO_TOKEN_API_URL readyState", xhr.readyState.toString())
+          console.log("TWILIO_TOKEN_API_URL status" , xhr.status.toString())
+          console.log("TWILIO_TOKEN_API_URL Response", xhr.responseText)
+          if (xhr.readyState === 4 && xhr.status === 200) {
+              var response_data = JSON.parse(xhr.responseText);
+              TWILIO_TOKEN = response_data.AccessToken;
+              twilio_room_connect();
+          }
+      };
+      var data = JSON.stringify({ RoomName : TWILIO_ROOM_NAME,TokenIdentity : TWILIO_TOKEN_IDENTITY });
+      xhr.send(data);
+
+    }
+    twilio_video_start = function(){
+
+      if (document.getElementById("TWILIO_TOKEN_IDENTITY").value) {
+        TWILIO_TOKEN_IDENTITY = document.getElementById("TWILIO_TOKEN_IDENTITY").value;  
+      }
+      if (document.getElementById("TWILIO_ROOM_NAME").value) {
+        TWILIO_ROOM_NAME = document.getElementById("TWILIO_ROOM_NAME").value;  
+      }
+      console.log("Twilio ROOM Info" , TWILIO_TOKEN_IDENTITY, TWILIO_ROOM_NAME)
+      if (TWILIO_TOKEN_IDENTITY != '' && TWILIO_TOKEN_IDENTITY != ''){
+        twilio_get_acess_token();
+      }
+      else{
+        alert("Invalid Twilio Details");
+      }
+      
+    }
+    twilio_video_start();
+  return {};
+});
+</script>
+
+</body>
+</html>
