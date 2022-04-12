@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Handle Browser Events</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <h4>Handle Browser Events</h4>
+    <div class="container">
+    	<div class="row">
+    		<div class="col-md-12">
+    			<pre>
+    				 //Disable backbutton
+						function preventBack() { window.history.forward(); }
+						    setTimeout("preventBack()", 0);
+						    window.onunload = function () { null };
+    				
+    			</pre>
+    		</div>
+    	</div>
+    	<div class="row">
+    		<div class="col-md-12">
+    			<pre>
+    				  // Disable Mouse Right click
+    document.addEventListener("contextmenu", function(event){
+	    event.preventDefault();
+	    alert('mouse right click is disabled');    
+    }, false);
+    				
+    			</pre>
+    		</div>
+    	</div>
+
+    	<div class="row">
+    		<div class="col-md-12">
+    			<pre>
+    				// Disable Copy and Paste
+    document.onselectstart = () => {
+      event.preventDefault();
+      alert('Disabled copy Paste');
+      }
+      
+    				
+    			</pre>
+    		</div>
+    	</div>
+
+    	<div class="row">
+    		<div class="col-md-12">
+    			<pre>
+    				// Disable keys on keyboard
+     document.onkeydown = function(e) {
+        if(event.keyCode == 123) {
+          return false;
+        }
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+        	alert('Disabled Web Devloper Inspector(Ctrl + Shift + I)');
+          return false;
+        }
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) {
+        	alert('Disabled Copy option(Ctrl + Shift + C)');
+          return false;
+        }
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+        	alert('Disabled page console option(Ctrl + Shift + J)');
+          return false;
+        }
+        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+        	alert('Disabled entering unicode character(Ctrl + Shift + U)');
+          return false;
+        }
+        if (e.ctrlKey && e.key == 'p') {
+            alert('Disabled Print Page action (Ctrl + p)');
+            e.cancelBubble = true;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+      }
+    				
+    			</pre>
+    		</div>
+    	</div>
+
+    	<div class="row">
+    		<div class="col-md-12">
+    			<pre>
+    				  /** TO DISABLE PRINTS WHIT CTRL+P **/
+      document.addEventListener('keydown', (e) => {
+          if (e.ctrlKey && e.key == 'p') {
+              alert('Disabled Print Page action (Ctrl + p)');
+              e.cancelBubble = true;
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              return false;
+          }
+      });
+    			</pre>
+    		</div>
+    	</div>
+
+    	
+    	
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+    //Disable backbutton
+	function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+    
+    // Disable Mouse Right click
+    document.addEventListener("contextmenu", function(event){
+	    event.preventDefault();
+	    alert('mouse right click is disabled');    
+    }, false);
+  
+  	// Disable Copy and Paste
+    document.onselectstart = () => {
+      event.preventDefault();
+      alert('Disabled copy Paste');
+      }
+      
+     // Disable keys on keyboard
+     document.onkeydown = function(e) {
+        if(event.keyCode == 123) {
+          return false;
+        }
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+        	alert('Disabled Web Devloper Inspector(Ctrl + Shift + I)');
+          return false;
+        }
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) {
+        	alert('Disabled Copy option(Ctrl + Shift + C)');
+          return false;
+        }
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+        	alert('Disabled page console option(Ctrl + Shift + J)');
+          return false;
+        }
+        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+        	alert('Disabled entering unicode character(Ctrl + Shift + U)');
+          return false;
+        }
+        if (e.ctrlKey && e.key == 'p') {
+            alert('Disabled Print Page action (Ctrl + p)');
+            e.cancelBubble = true;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+      }
+
+     
+
+      /** TO DISABLE PRINTS WHIT CTRL+P **/
+      document.addEventListener('keydown', (e) => {
+          if (e.ctrlKey && e.key == 'p') {
+              alert('Disabled Print Page action (Ctrl + p)');
+              e.cancelBubble = true;
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              return false;
+          }
+      });
+      
+
+      
+
+    </script>
+  </body>
+</html>
